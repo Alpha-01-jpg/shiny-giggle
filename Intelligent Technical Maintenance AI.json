@@ -1,0 +1,223 @@
+{
+  "name": "Intelligent Technical Maintenance AI",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "f451a6ce-90c8-4c93-a47f-0578d93d9de4",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -288,
+        -64
+      ],
+      "id": "c9d08a0c-258f-4733-8590-8c40b3b663bc",
+      "name": "Webhook",
+      "webhookId": "f451a6ce-90c8-4c93-a47f-0578d93d9de4"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "=1mnmtFeyI2VlWcSpl2DzfIrnQcjuWKFqtGA8xyH5l-xk",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Feuille 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mnmtFeyI2VlWcSpl2DzfIrnQcjuWKFqtGA8xyH5l-xk/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $now.toFormat('yyyy-MM-dd') }}",
+            "Action": "={{ $json.body.message.analysis.structuredData.Action }}",
+            "Cause  ": "={{ $json.body.message.analysis.structuredData.Cause }}",
+            "Question  ": "={{ $json.body.message.analysis.structuredData.Problem }}",
+            "Call id": "={{ $json.body.message.call.id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Question  ",
+              "displayName": "Question  ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Cause  ",
+              "displayName": "Cause  ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Action",
+              "displayName": "Action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Call id",
+              "displayName": "Call id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -64,
+        32
+      ],
+      "id": "da04a4f3-88a5-4223-8fc4-3b479a54b5d3",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "SgZvLbMoFqjPatOP",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7a6dc6f3-f25a-4382-be74-d3ee5411c80f",
+              "leftValue": "=ticket {{ $json.body.message.analysis.structuredData.Ticket }}",
+              "rightValue": "=yes {{ $json.body.message.analysis.successEvaluation }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -64,
+        -160
+      ],
+      "id": "66551d09-5221-492d-ac8b-bc6a9163c6f8",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "celkhartouti@gmail.com",
+        "subject": "=Call Report for Review - Call ID: {{ $json.body.message.call.id }}",
+        "emailType": "text",
+        "message": "=\n{{ $json.body.message.analysis.summary }}\nCall ID:{{ $json.body.message.call.id }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        224,
+        -176
+      ],
+      "id": "bd0c4f53-fced-433a-8e4f-a54a8595ddeb",
+      "name": "Send a message",
+      "webhookId": "d88ed44e-6195-4941-a973-e1ac2b4277fd",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "o5HFmFPLvpprcPYY",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        []
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d822f1c5-3fbd-4ffd-807d-9735ef8e1a39",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "56b16a1c2afc5087b24b3904434ed89da2ba28c6bb38f89f935969fba5d2b101"
+  },
+  "id": "6WMZ5eqkC14YQGKf",
+  "tags": []
+}
